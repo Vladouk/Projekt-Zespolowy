@@ -1,10 +1,11 @@
 """
 Delivery Manager - Flask Backend
-API для управління замовленнями доставки
+API для управління замовленнями доставки з авторизацією
 """
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, get_jwt
 import sqlite3
 import json
 from datetime import datetime
@@ -16,6 +17,10 @@ CORS(app)
 
 # Конфігурація
 DATABASE = 'database.db'
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+
+# Ініціалізація JWT
+jwt = JWTManager(app)
 
 # ============================================================
 # Database Functions
@@ -37,15 +42,29 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             address TEXT NOT NULL,
             status TEXT NOT NULL,
+            user_id INTEGER,
             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
     
     conn.commit()
     conn.close()
     print("✅ База даних ініціалізована")
+    
+    # Ініціалізувати таблиці авторизації
+    from auth import init_auth_db, create_admin_user
+    init_auth_db()
+    create_admin_user()
+
+# ============================================================
+# Register Blueprints
+# ============================================================
+
+from auth import auth_bp
+app.register_blueprint(auth_bp)
 
 # ============================================================
 # API Routes
@@ -57,14 +76,16 @@ def health():
     return jsonify({
         'status': 'ok',
         'message': 'Delivery Manager API is running',
+        'auth_enabled': True,
         'timestamp': datetime.now().isoformat()
     })
 
 @app.route('/api/orders', methods=['GET'])
+@jwt_required()
 def get_orders():
     """
     GET /api/orders
-    Отримати список всіх замовлень
+    Отримати список замовлень поточного користувача
     
     Query Parameters:
         - status: фільтрування за статусом (опціонально)
