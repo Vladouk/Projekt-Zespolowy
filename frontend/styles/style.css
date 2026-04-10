@@ -1,0 +1,461 @@
+/* ============================================================
+   Delivery Manager - Основні стилі
+   ============================================================ */
+
+:root {
+    --primary-color: #007BFF;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-bg: #f8f9fa;
+    --dark-text: #212529;
+    --border-color: #dee2e6;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), #0056b3);
+    color: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.header .subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* ============================================================
+   Status Indicator
+   ============================================================ */
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background-color: white;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.online {
+    background-color: var(--success-color);
+}
+
+.status-dot.offline {
+    background-color: var(--danger-color);
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ============================================================
+   Sections
+   ============================================================ */
+
+section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: var(--dark-text);
+}
+
+/* ============================================================
+   Form Styles
+   ============================================================ */
+
+.order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-input {
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-small {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-edit {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #138496;
+}
+
+.btn-delete {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* ============================================================
+   Filter Buttons
+   ============================================================ */
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    background-color: var(--light-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* ============================================================
+   Orders List
+   ============================================================ */
+
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-card {
+    background-color: var(--light-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.order-card.new {
+    border-left-color: #ffc107;
+    background-color: #fffbf0;
+}
+
+.order-card.in-progress {
+    border-left-color: var(--info-color);
+    background-color: #f0f9ff;
+}
+
+.order-card.completed {
+    border-left-color: var(--success-color);
+    background-color: #f0fff4;
+}
+
+.order-card.cancelled {
+    border-left-color: var(--danger-color);
+    background-color: #fff5f5;
+}
+
+.order-content {
+    flex: 1;
+}
+
+.order-id {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.order-address {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.order-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.order-status.new {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.order-status.in-progress {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.order-status.completed {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.order-status.cancelled {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.order-date {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 8px;
+}
+
+.order-actions {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 1.1rem;
+}
+
+/* ============================================================
+   Sync Section
+   ============================================================ */
+
+.sync-section {
+    text-align: center;
+}
+
+.sync-status {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.sync-status.success {
+    color: var(--success-color);
+}
+
+.sync-status.error {
+    color: var(--danger-color);
+}
+
+/* ============================================================
+   Responsive Design
+   ============================================================ */
+
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+    }
+
+    section {
+        padding: 15px;
+    }
+
+    .order-card {
+        flex-direction: column;
+    }
+
+    .order-actions {
+        flex-direction: row;
+        width: 100%;
+    }
+
+    .btn-small {
+        flex: 1;
+        text-align: center;
+    }
+
+    .filter-buttons {
+        justify-content: center;
+    }
+}
+
+/* ============================================================
+   Loading Animation
+   ============================================================ */
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 123, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   Print Styles
+   ============================================================ */
+
+@media print {
+    .header, .add-order-section, .filter-section, .sync-section {
+        display: none;
+    }
+
+    .order-card {
+        break-inside: avoid;
+    }
+}
