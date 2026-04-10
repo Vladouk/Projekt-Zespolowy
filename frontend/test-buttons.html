@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .output {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Button Functionality Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Direct onclick</h2>
+        <button class="btn" onclick="testDirectClick()">Click Me (Direct)</button>
+        <div id="output1" class="output">Waiting for click...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Event Listener</h2>
+        <button id="testBtn2" class="btn">Click Me (Event Listener)</button>
+        <div id="output2" class="output">Waiting for click...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Navigation Links</h2>
+        <a href="#" class="nav-link btn" data-view="dashboard">Dashboard</a>
+        <a href="#" class="nav-link btn" data-view="orders">Orders</a>
+        <a href="#" class="nav-link btn" data-view="settings">Settings</a>
+        <div id="output3" class="output">Click any nav link...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: localStorage Check</h2>
+        <button class="btn" onclick="testStorage()">Check localStorage</button>
+        <div id="output4" class="output">Waiting...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Simulator: Fake Login</h2>
+        <button class="btn" onclick="fakeLogin()">Simulate Login</button>
+        <div id="output5" class="output">Click to simulate login...</div>
+    </div>
+
+    <script>
+        console.log('✅ Test page loaded');
+
+        function testDirectClick() {
+            const output = document.getElementById('output1');
+            output.className = 'output success';
+            output.textContent = '✅ Direct onclick WORKS!';
+            console.log('Direct click works!');
+        }
+
+        document.getElementById('testBtn2').addEventListener('click', function(e) {
+            e.preventDefault();
+            const output = document.getElementById('output2');
+            output.className = 'output success';
+            output.textContent = '✅ Event Listener WORKS!';
+            console.log('Event listener works!');
+        });
+
+        // Test navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const view = this.dataset.view;
+                const output = document.getElementById('output3');
+                output.className = 'output success';
+                output.textContent = `✅ Nav link clicked: "${view}"`;
+                console.log('Nav link clicked:', view);
+            });
+        });
+
+        function testStorage() {
+            const output = document.getElementById('output4');
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('current_user');
+            
+            if (token && user) {
+                output.className = 'output success';
+                output.textContent = `✅ localStorage OK!\nToken: ${token.substring(0, 20)}...\nUser: ${user}`;
+            } else {
+                output.className = 'output error';
+                output.textContent = `❌ localStorage EMPTY!\nToken: ${token || 'NOT SET'}\nUser: ${user || 'NOT SET'}\n\nClick "Simulate Login" button first!`;
+            }
+        }
+
+        function fakeLogin() {
+            // Simulate API response
+            const fakeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+            const fakeUser = JSON.stringify({
+                id: 1,
+                username: 'admin',
+                email: 'admin@test.com',
+                role: 'admin'
+            });
+
+            localStorage.setItem('auth_token', fakeToken);
+            localStorage.setItem('current_user', fakeUser);
+
+            const output = document.getElementById('output5');
+            output.className = 'output success';
+            output.textContent = `✅ Fake login complete!\n- Token saved\n- User data saved\n\nNow try "Check localStorage" button above`;
+            console.log('Fake login done');
+        }
+
+        // Log all scripts loaded
+        window.addEventListener('load', function() {
+            console.log('📊 Page fully loaded');
+            console.log('Scripts loaded:', {
+                'js/api.js': typeof DeliveryAPI,
+                'js/app.js': typeof logout,
+                'DOM ready': document.readyState
+            });
+        });
+    </script>
+</body>
+</html>
