@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Delivery Manager - Логін">
+    <meta name="description" content="Delivery Manager - Logowanie">
     
-    <title>Логін - Delivery Manager</title>
+    <title>Logowanie - Delivery Manager</title>
     
     <style>
         * {
@@ -184,58 +184,58 @@
             <div class="login-header">
                 <h1>📦</h1>
                 <h1>Delivery Manager</h1>
-                <p>Система управління доставками</p>
+                <p>Profesjonalny System Dostarczania</p>
             </div>
 
             <div class="demo-info">
-                <strong>Demo акаунти:</strong><br>
+                <strong>Konta Demo:</strong><br>
                 👤 <code>admin</code> / 🔑 <code>admin123</code><br>
-                (мобільна версія)
+                (wersja mobilna)
             </div>
 
             <!-- LOGIN FORM -->
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="username">Ім'я користувача</label>
+                    <label for="username">Nazwa Użytkownika</label>
                     <input 
                         type="text" 
                         id="username" 
-                        placeholder="Введіть ім'я користувача"
+                        placeholder="Wprowadź nazwę użytkownika"
                         required
                         autocomplete="username"
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="password">Пароль</label>
+                    <label for="password">Hasło</label>
                     <input 
                         type="password" 
                         id="password" 
-                        placeholder="Введіть пароль"
+                        placeholder="Wprowadź hasło"
                         required
                         autocomplete="current-password"
                     >
                 </div>
 
                 <button type="submit" class="login-btn" id="submitBtn">
-                    Увійти
+                    Zaloguj
                 </button>
             </form>
 
             <div id="message" class="message"></div>
 
             <div class="register-link">
-                Немаєте акаунту? <a href="#" onclick="toggleRegister(event)">Зареєструйтесь</a>
+                Nie masz konta? <a href="#" onclick="toggleRegister(event)">Zarejestruj się</a>
             </div>
 
             <!-- REGISTER FORM -->
             <form id="registerForm" style="display: none;">
                 <div class="form-group">
-                    <label for="reg-username">Ім'я користувача</label>
+                    <label for="reg-username">Nazwa Użytkownika</label>
                     <input 
                         type="text" 
                         id="reg-username" 
-                        placeholder="Виберіть ім'я користувача"
+                        placeholder="Wybierz nazwę użytkownika"
                         required
                     >
                 </div>
@@ -245,38 +245,38 @@
                     <input 
                         type="email" 
                         id="reg-email" 
-                        placeholder="Введіть email"
+                        placeholder="Wprowadź email"
                         required
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="reg-password">Пароль</label>
+                    <label for="reg-password">Hasło</label>
                     <input 
                         type="password" 
                         id="reg-password" 
-                        placeholder="Введіть пароль"
+                        placeholder="Wprowadź hasło"
                         required
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="reg-role">Роль</label>
+                    <label for="reg-role">Rola</label>
                     <select id="reg-role">
-                        <option value="user">Клієнт</option>
-                        <option value="courier">Курьєр</option>
+                        <option value="user">Klient</option>
+                        <option value="courier">Kurier</option>
                     </select>
                 </div>
 
                 <button type="submit" class="login-btn" id="submitRegBtn">
-                    Зареєструватися
+                    Zarejestruj
                 </button>
             </form>
 
             <div id="reg-message" class="message"></div>
 
             <div class="register-link" id="backToLogin" style="display: none;">
-                Вже маєте акаунт? <a href="#" onclick="toggleRegister(event)">Увійти</a>
+                Masz już konto? <a href="#" onclick="toggleRegister(event)">Zaloguj się</a>
             </div>
         </div>
     </div>
@@ -312,7 +312,7 @@
             const message = document.getElementById('message');
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span> Логіну...';
+            submitBtn.innerHTML = '<span class="loading"></span> Logowanie...';
             message.className = 'message';
             message.textContent = '';
 
@@ -328,21 +328,21 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Помилка логіну');
+                    throw new Error(data.error || 'Błąd logowania');
                 }
 
-                // Зберегти токен
+                // Zapisz token
                 setToken(data.access_token);
                 
-                // Зберегти інформацію про користувача
+                // Zapisz informacje o użytkowniku
                 if (data.user) {
                     localStorage.setItem('current_user', JSON.stringify(data.user));
                 }
 
                 message.className = 'message success';
-                message.textContent = '✅ Успішно! Переспрямування...';
+                message.textContent = '✅ Sukces! Przekierowywanie...';
 
-                // Переспрямувати
+                // Przekieruj
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 500);
@@ -352,11 +352,11 @@
                 message.textContent = `❌ ${error.message}`;
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Увійти';
+                submitBtn.innerHTML = 'Zaloguj';
             }
         });
 
-        // Форма регістрації
+        // Formularz rejestracji
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -368,7 +368,7 @@
             const message = document.getElementById('reg-message');
 
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading"></span> Реєстрація...';
+            submitBtn.innerHTML = '<span class="loading"></span> Rejestracja...';
             message.className = 'message';
             message.textContent = '';
 
@@ -384,11 +384,11 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Помилка реєстрації');
+                    throw new Error(data.error || 'Błąd rejestracji');
                 }
 
                 message.className = 'message success';
-                message.textContent = '✅ Реєстрація успішна! Переспрямування на логін...';
+                message.textContent = '✅ Rejestracja pomyślna! Przekierowywanie na logowanie...';
 
                 setTimeout(() => {
                     toggleRegister(e);
@@ -399,7 +399,7 @@
                 message.textContent = `❌ ${error.message}`;
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Зареєструватися';
+                submitBtn.innerHTML = 'Zarejestruj';
             }
         });
 
@@ -411,7 +411,7 @@
             const registerLink = document.querySelector('.register-link');
 
             if (loginForm.style.display === 'none') {
-                // Повернутися до логіну
+                // Powrót do logowania
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
                 registerLink.style.display = 'block';
@@ -419,7 +419,7 @@
                 document.getElementById('message').textContent = '';
                 document.getElementById('reg-message').textContent = '';
             } else {
-                // Перейти до реєстрації
+                // Przejście do rejestracji
                 loginForm.style.display = 'none';
                 registerForm.style.display = 'block';
                 registerLink.style.display = 'none';

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Delivery Manager - Professional Delivery System</title>
+    <title>🚀 Delivery Manager - Profesjonalny System Dostarczania</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <link rel="stylesheet" href="styles/style.css">
@@ -18,15 +18,15 @@
             </div>
             
             <nav class="main-nav">
-                <a href="#" class="nav-link" data-view="dashboard">Dashboard</a>
-                <a href="#" class="nav-link" data-view="orders">Orders</a>
-                <a href="#" class="nav-link" data-view="settings">Settings</a>
+                <a href="#" class="nav-link" data-view="dashboard">Pulpit</a>
+                <a href="#" class="nav-link" data-view="orders">Zamówienia</a>
+                <a href="#" class="nav-link" data-view="settings">Ustawienia</a>
             </nav>
             
             <div class="user-info" id="userInfo" style="display: none;">
-                <span class="username" id="username">Guest</span>
-                <span class="badge" id="userRole">USER</span>
-                <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+                <span class="username" id="username">Gość</span>
+                <span class="badge" id="userRole">UŻYTKOWNIK</span>
+                <button class="btn btn-logout" onclick="logout()">🚪 Wyloguj</button>
             </div>
         </div>
     </header>
@@ -38,18 +38,18 @@
         <!-- ADMIN DASHBOARD -->
         <div data-view="dashboard" id="adminPanel" style="display: none;">
             <section class="admin-section">
-                <h1>👨‍💼 Admin Dashboard</h1>
+                <h1>👨‍💼 Pulpit Administratora</h1>
                 
                 <!-- Statistics -->
                 <div id="adminStats" class="stats-container">
-                    <p>Loading statistics...</p>
+                    <p>Ładowanie statystyk...</p>
                 </div>
                 
                 <!-- Users Management -->
                 <section class="admin-section">
-                    <h2>📋 Users Management</h2>
+                    <h2>📋 Zarządzanie Użytkownikami</h2>
                     <div id="usersList" class="users-grid">
-                        <p>Loading users...</p>
+                        <p>Ładowanie użytkowników...</p>
                     </div>
                 </section>
             </section>
@@ -58,9 +58,9 @@
         <!-- ADMIN ORDERS -->
         <div data-view="orders" id="adminOrdersPanel" style="display: none;">
             <section class="admin-section">
-                <h1>📦 All Orders</h1>
+                <h1>📦 Wszystkie Zamówienia</h1>
                 <div id="adminOrdersList" class="orders-grid">
-                    <p>Loading orders...</p>
+                    <p>Ładowanie zamówień...</p>
                 </div>
             </section>
         </div>
@@ -68,15 +68,15 @@
         <!-- ADMIN SETTINGS -->
         <div data-view="settings" id="adminSettingsPanel" style="display: none;">
             <section class="admin-section">
-                <h1>⚙️ Admin Settings</h1>
+                <h1>⚙️ Ustawienia Administratora</h1>
                 <div class="settings-container">
-                    <h2>System Configuration</h2>
-                    <p>✅ Database Status: Connected</p>
-                    <p>✅ API Status: Running</p>
-                    <p>✅ Backend Version: 2.0</p>
+                    <h2>Konfiguracja Systemu</h2>
+                    <p>✅ Status Bazy Danych: Połączono</p>
+                    <p>✅ Status API: Uruchomione</p>
+                    <p>✅ Wersja Backend: 2.0</p>
                     <div style="margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="alert('Backup feature coming in ETAP 3')">💾 Backup Database</button>
-                        <button class="btn btn-primary" onclick="alert('Logs feature coming in ETAP 3')">📋 View Logs</button>
+                        <button class="btn btn-primary" onclick="alert('Funkcja kopii zapasowej dostępna w ETAP 3')">💾 Kopia Zapasowa Bazy</button>
+                        <button class="btn btn-primary" onclick="alert('Funkcja logów dostępna w ETAP 3')">📋 Wyświetl Logi</button>
                     </div>
                 </div>
             </section>
@@ -87,21 +87,21 @@
         <!-- COURIER DASHBOARD -->
         <div data-view="dashboard" id="courierPanel" style="display: none;">
             <section class="courier-section">
-                <h1>🚴 Courier Dashboard</h1>
+                <h1>🚴 Pulpit Kuriera</h1>
                 
                 <!-- Available Orders -->
                 <section class="courier-section">
-                    <h2>📦 Available Orders</h2>
+                    <h2>📦 Dostępne Zamówienia</h2>
                     <div id="availableOrdersList" class="orders-grid">
-                        <p>Loading available orders...</p>
+                        <p>Ładowanie dostępnych zamówień...</p>
                     </div>
                 </section>
                 
                 <!-- Current Order Status -->
                 <section class="courier-section">
-                    <h2>📍 Current Delivery</h2>
+                    <h2>📍 Obecna Dostawa</h2>
                     <div id="currentDelivery" class="current-delivery">
-                        <p>No active delivery</p>
+                        <p>Brak aktywnej dostawy</p>
                     </div>
                 </section>
             </section>
@@ -110,9 +110,9 @@
         <!-- COURIER ORDERS -->
         <div data-view="orders" id="courierOrdersPanel" style="display: none;">
             <section class="courier-section">
-                <h1>📦 My Orders</h1>
+                <h1>📦 Moje Zamówienia</h1>
                 <div id="courierOrdersList" class="orders-grid">
-                    <p>Loading orders...</p>
+                    <p>Ładowanie zamówień...</p>
                 </div>
             </section>
         </div>
@@ -120,23 +120,23 @@
         <!-- COURIER SETTINGS -->
         <div data-view="settings" id="courierSettingsPanel" style="display: none;">
             <section class="courier-section">
-                <h1>⚙️ Courier Settings</h1>
+                <h1>⚙️ Ustawienia Kuriera</h1>
                 <div class="settings-container">
-                    <h2>Profile Settings</h2>
+                    <h2>Ustawienia Profilu</h2>
                     <div class="form-group">
-                        <label>Vehicle Type:</label>
-                        <input type="text" placeholder="Bicycle / Motorcycle / Car" />
+                        <label>Typ Pojazdu:</label>
+                        <input type="text" placeholder="Rower / Motocykl / Samochód" />
                     </div>
                     <div class="form-group">
-                        <label>License Plate:</label>
-                        <input type="text" placeholder="Your vehicle license" />
+                        <label>Numer Rejestracyjny:</label>
+                        <input type="text" placeholder="Numer pojazdu" />
                     </div>
-                    <h2 style="margin-top: 20px;">Availability</h2>
+                    <h2 style="margin-top: 20px;">Dostępność</h2>
                     <div class="form-group checkbox">
                         <input type="checkbox" checked />
-                        <label>🟢 Available for deliveries</label>
+                        <label>🟢 Dostępny do dostaw</label>
                     </div>
-                    <button class="btn btn-primary" onclick="alert('Advanced settings coming in ETAP 3')">💾 Save Settings</button>
+                    <button class="btn btn-primary" onclick="alert('Zaawansowane ustawienia dostępne w ETAP 3')">💾 Zapisz Ustawienia</button>
                 </div>
             </section>
         </div>
@@ -146,54 +146,54 @@
         <!-- CLIENT DASHBOARD -->
         <div data-view="dashboard" id="clientPanel" style="display: none;">
             <section class="client-section">
-                <h1>👤 My Orders</h1>
+                <h1>👤 Moje Zamówienia</h1>
                 
                 <!-- Create New Order -->
                 <section class="create-order-section">
-                    <h2>➕ Create New Order</h2>
+                    <h2>➕ Nowe Zamówienie</h2>
                     <form id="createOrderForm" class="order-form">
                         <div class="form-group">
-                            <label for="deliveryAddress">Delivery Address *</label>
-                            <input type="text" id="deliveryAddress" placeholder="Street, City" required>
+                            <label for="deliveryAddress">Adres Dostawy *</label>
+                            <input type="text" id="deliveryAddress" placeholder="Ulica, Miasto" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="productDescription">What to deliver? *</label>
-                            <textarea id="productDescription" placeholder="Describe the item(s)" required></textarea>
+                            <label for="productDescription">Co dostarczyć? *</label>
+                            <textarea id="productDescription" placeholder="Opisz przedmiot(y)" required></textarea>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="productCategory">Category</label>
+                                <label for="productCategory">Kategoria</label>
                                 <select id="productCategory">
-                                    <option value="other">Other</option>
-                                    <option value="food">Food</option>
-                                    <option value="beverages">Beverages</option>
-                                    <option value="electronics">Electronics</option>
-                                    <option value="documents">Documents</option>
+                                    <option value="other">Inne</option>
+                                    <option value="food">Jedzenie</option>
+                                    <option value="beverages">Napoje</option>
+                                    <option value="electronics">Elektronika</option>
+                                    <option value="documents">Dokumenty</option>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label for="distance">Distance (km)</label>
+                                <label for="distance">Odległość (km)</label>
                                 <input type="number" id="distance" placeholder="2.5" min="0.1" step="0.1" value="2.5">
                             </div>
                         </div>
                         
                         <div class="form-group checkbox">
                             <input type="checkbox" id="isUrgent">
-                            <label for="isUrgent">🔥 Urgent delivery (2x price)</label>
+                            <label for="isUrgent">🔥 Dostawa ekspresowa (2x cena)</label>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary btn-large">Create Order</button>
+                        <button type="submit" class="btn btn-primary btn-large">Utwórz Zamówienie</button>
                     </form>
                 </section>
                 
                 <!-- My Orders List -->
                 <section class="orders-section">
-                    <h2>📦 My Orders</h2>
+                    <h2>📦 Moje Zamówienia</h2>
                     <div id="myOrdersList" class="orders-grid">
-                        <p>No orders yet</p>
+                        <p>Brak zamówień</p>
                     </div>
                 </section>
             </section>
@@ -202,9 +202,9 @@
         <!-- CLIENT ORDERS -->
         <div data-view="orders" id="clientOrdersPanel" style="display: none;">
             <section class="client-section">
-                <h1>📦 My Orders</h1>
+                <h1>📦 Moje Zamówienia</h1>
                 <div id="clientOrdersList" class="orders-grid">
-                    <p>Loading orders...</p>
+                    <p>Ładowanie zamówień...</p>
                 </div>
             </section>
         </div>
@@ -212,32 +212,32 @@
         <!-- CLIENT SETTINGS -->
         <div data-view="settings" id="clientSettingsPanel" style="display: none;">
             <section class="client-section">
-                <h1>⚙️ Account Settings</h1>
+                <h1>⚙️ Ustawienia Konta</h1>
                 <div class="settings-container">
-                    <h2>Profile Information</h2>
+                    <h2>Informacje Profilu</h2>
                     <div class="form-group">
-                        <label>Full Name:</label>
-                        <input type="text" id="clientFullName" placeholder="Your name" />
+                        <label>Pełne Imię i Nazwisko:</label>
+                        <input type="text" id="clientFullName" placeholder="Twoje imię" />
                     </div>
                     <div class="form-group">
                         <label>Email:</label>
-                        <input type="email" id="clientEmail" placeholder="Your email" />
+                        <input type="email" id="clientEmail" placeholder="Twój email" />
                     </div>
-                    <h2 style="margin-top: 20px;">Saved Addresses</h2>
+                    <h2 style="margin-top: 20px;">Zapisane Adresy</h2>
                     <div class="form-group">
-                        <label>Home Address:</label>
-                        <input type="text" placeholder="Your home address" />
+                        <label>Adres Domowy:</label>
+                        <input type="text" placeholder="Twój adres domowy" />
                     </div>
                     <div class="form-group">
-                        <label>Work Address:</label>
-                        <input type="text" placeholder="Your work address" />
+                        <label>Adres Pracy:</label>
+                        <input type="text" placeholder="Twój adres pracy" />
                     </div>
-                    <h2 style="margin-top: 20px;">Payment Methods</h2>
+                    <h2 style="margin-top: 20px;">Metody Płatności</h2>
                     <div class="form-group checkbox">
                         <input type="checkbox" checked />
-                        <label>💳 Credit/Debit Card</label>
+                        <label>💳 Karta Kredytowa/Debetowa</label>
                     </div>
-                    <button class="btn btn-primary" onclick="alert('Advanced settings coming in ETAP 3')">💾 Save Settings</button>
+                    <button class="btn btn-primary" onclick="alert('Zaawansowane ustawienia dostępne w ETAP 3')">💾 Zapisz Ustawienia</button>
                 </div>
             </section>
         </div>
