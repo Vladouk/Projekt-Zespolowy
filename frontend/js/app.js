@@ -88,8 +88,8 @@ function switchView(view) {
     console.log(`👤 Current user role: ${currentUser ? currentUser.role : 'unknown'}`);
     console.log(`🔌 API initialized: ${api ? 'YES' : 'NO'}`);
     
-    // Hide all panels and views
-    const allPanels = document.querySelectorAll('[data-view]');
+    // Hide all content panels (main > div[data-view]) - только в main, не в nav
+    const allPanels = document.querySelectorAll('main > div[data-view]');
     allPanels.forEach(panel => {
         panel.style.display = 'none';
     });

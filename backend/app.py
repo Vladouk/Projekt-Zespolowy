@@ -237,13 +237,24 @@ def register():
     
     try:
         password_hash = generate_password_hash(data['password'])
+        role = data.get('role', 'user')
+        
         cursor.execute('''
             INSERT INTO users (username, email, password_hash, role, is_active)
             VALUES (?, ?, ?, ?, ?)
-        ''', (data['username'], data['email'], password_hash, data.get('role', 'user'), 1))
+        ''', (data['username'], data['email'], password_hash, role, 1))
         conn.commit()
         
         user_id = cursor.lastrowid
+        
+        # Если курьер - создать профиль курьера
+        if role == 'courier':
+            cursor.execute('''
+                INSERT INTO couriers (user_id, status)
+                VALUES (?, ?)
+            ''', (user_id, 'offline'))
+            conn.commit()
+        
         log_activity(user_id, 'register', 'user', {'username': data['username']})
         
         return jsonify({
