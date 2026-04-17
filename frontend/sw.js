@@ -3,7 +3,7 @@
  * Дозволяє працювати оффлайн та встановлюватися як додаток
  */
 
-const CACHE_NAME = 'delivery-manager-v1';
+const CACHE_NAME = 'delivery-manager-v2';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -109,10 +109,18 @@ self.addEventListener('fetch', (event) => {
         // Для POST, PUT, DELETE запитів - завжди мережа
         event.respondWith(
             fetch(event.request)
-                .catch(() => {
+                .then((response) => {
+                    return response;
+                })
+                .catch((error) => {
+                    console.error('❌ Network request failed:', error);
                     return new Response(
                         JSON.stringify({ error: 'Не вдається обробити запит офлайн' }),
-                        { status: 503, statusText: 'Service Unavailable' }
+                        { 
+                            status: 503, 
+                            statusText: 'Service Unavailable',
+                            headers: { 'Content-Type': 'application/json' }
+                        }
                     );
                 })
         );

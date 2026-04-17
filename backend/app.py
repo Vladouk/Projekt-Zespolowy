@@ -166,6 +166,17 @@ def init_db():
         conn.commit()
         print('✅ Admin user created: admin / admin123')
     
+    # Create second admin user if not exists
+    cursor.execute('SELECT id FROM users WHERE username = ?', ('Adm',))
+    if not cursor.fetchone():
+        admin2_hash = generate_password_hash('123123')
+        cursor.execute('''
+            INSERT INTO users (username, email, password_hash, role, is_active)
+            VALUES (?, ?, ?, ?, ?)
+        ''', ('Adm', 'adm@delivery-manager.com', admin2_hash, 'admin', 1))
+        conn.commit()
+        print('✅ Second admin user created: Adm / 123123')
+    
     conn.close()
 
 # ============================================================
@@ -565,137 +576,9 @@ def cancel_order(order_id):
     conn.commit()
     conn.close()
     
-    log_activity(user_id, 'cancel_order', 'order', {'order_id': order_id})
-    
-    return jsonify({'message': 'Order cancelled', 'order_id': order_id}), 200
-
 # ============================================================
 # COURIER ENDPOINTS
 # ============================================================
-
-@app.route('/api/courier/available', methods=['GET'])
-@jwt_required()
-def get_available_orders():
-    """Get available orders near courier"""
-    user_id = get_jwt_identity()
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    # Get courier info
-    cursor.execute('SELECT * FROM couriers WHERE user_id = ?', (user_id,))
-    courier = cursor.fetchone()
-    
-    if not courier:
-        return jsonify({'error': 'Not a courier'}), 403
-    
-    # Get new orders
-    cursor.execute('SELECT * FROM orders WHERE status = "new" AND courier_id IS NULL')
-    orders = cursor.fetchall()
-    conn.close()
-    
-    available = []
-    for order in orders:
-        # Mock distance calculation
-        distance = order['distance_km'] or 2.5
-        
-        if distance <= 5.0:  # Within 5km radius
-            available.append({
-                'id': order['id'],
-                'product': order['product_description'],
-                'address': order['delivery_address'],
-                'distance_km': distance,
-                'suggested_price': order['suggested_price'],
-                'category': order['product_category']
-            })
-    
-    return jsonify(available), 200
-
-@app.route('/api/courier/accept/<int:order_id>', methods=['POST'])
-@jwt_required()
-def accept_order(order_id):
-    """Courier accepts order"""
-    user_id = get_jwt_identity()
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    # Get courier
-    cursor.execute('SELECT id FROM couriers WHERE user_id = ?', (user_id,))
-    courier = cursor.fetchone()
-    
-    if not courier:
-        conn.close()
-        return jsonify({'error': 'Not a courier'}), 403
-    
-    # Get order
-    cursor.execute('SELECT * FROM orders WHERE id = ?', (order_id,))
-    order = cursor.fetchone()
-    
-    if not order:
-        conn.close()
-        return jsonify({'error': 'Order not found'}), 404
-    
-    if order['courier_id'] is not None:
-        conn.close()
-        return jsonify({'error': 'Order already assigned'}), 409
-    
-    # Assign order
-    cursor.execute('''
-        UPDATE orders SET courier_id = ?, status = ?, assigned_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    ''', (courier['id'], 'assigned', order_id))
-    
-    conn.commit()
-    conn.close()
-    
-    log_activity(user_id, 'accept_order', 'order', {'order_id': order_id})
-    
-    return jsonify({'message': 'Order accepted', 'order_id': order_id}), 200
-
-@app.route('/api/courier/status/<int:order_id>', methods=['PUT'])
-@jwt_required()
-def update_order_status(order_id):
-    """Update order delivery status"""
-    user_id = get_jwt_identity()
-    data = request.json
-    
-    if not data.get('status'):
-        return jsonify({'error': 'Status required'}), 400
-    
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM orders WHERE id = ?', (order_id,))
-    order = cursor.fetchone()
-    
-    if not order:
-        conn.close()
-        return jsonify({'error': 'Order not found'}), 404
-    
-    cursor.execute('SELECT id FROM couriers WHERE user_id = ?', (user_id,))
-    courier = cursor.fetchone()
-    
-    if not courier or order['courier_id'] != courier['id']:
-        conn.close()
-        return jsonify({'error': 'Not authorized'}), 403
-    
-    new_status = data['status']
-    
-    if new_status == 'delivered':
-        cursor.execute('''
-            UPDATE orders SET status = ?, completed_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        ''', (new_status, order_id))
-    else:
-        cursor.execute('UPDATE orders SET status = ? WHERE id = ?', (new_status, order_id))
-    
-    conn.commit()
-    conn.close()
-    
-    log_activity(user_id, 'update_order_status', 'order', {'order_id': order_id, 'status': new_status})
-    
-    return jsonify({'message': 'Status updated', 'order_id': order_id, 'status': new_status}), 200
 
 @app.route('/api/courier/my-orders', methods=['GET'])
 @jwt_required()
@@ -724,6 +607,74 @@ def get_courier_orders():
     conn.close()
     
     return jsonify(orders), 200
+
+@app.route('/api/courier/available-orders', methods=['GET'])
+@jwt_required()
+def get_available_orders():
+    """Get available orders for courier to accept"""
+    user_id = get_jwt_identity()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Get courier profile
+    cursor.execute('SELECT id FROM couriers WHERE user_id = ?', (user_id,))
+    courier = cursor.fetchone()
+    
+    if not courier:
+        conn.close()
+        return jsonify({'error': 'Courier profile not found'}), 404
+    
+    # Get new orders without assigned courier
+    cursor.execute('''
+        SELECT o.*, u.username as client_name
+        FROM orders o
+        LEFT JOIN users u ON o.client_id = u.id
+        WHERE o.courier_id IS NULL AND o.status = 'new'
+        ORDER BY o.created_at DESC
+    ''')
+    orders = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    
+    return jsonify(orders), 200
+
+@app.route('/api/courier/accept-order/<int:order_id>', methods=['POST'])
+@jwt_required()
+def accept_order(order_id):
+    """Accept an order as courier"""
+    user_id = get_jwt_identity()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Get courier profile
+    cursor.execute('SELECT id FROM couriers WHERE user_id = ?', (user_id,))
+    courier = cursor.fetchone()
+    
+    if not courier:
+        conn.close()
+        return jsonify({'error': 'Courier profile not found'}), 404
+    
+    # Check if order exists and is unassigned
+    cursor.execute('SELECT id FROM orders WHERE id = ? AND courier_id IS NULL', (order_id,))
+    order = cursor.fetchone()
+    
+    if not order:
+        conn.close()
+        return jsonify({'error': 'Order not found or already assigned'}), 404
+    
+    # Assign order to courier
+    cursor.execute('''
+        UPDATE orders SET courier_id = ?, status = 'accepted'
+        WHERE id = ?
+    ''', (courier['id'], order_id))
+    conn.commit()
+    
+    log_activity(user_id, 'accept_order', 'order', {'order_id': order_id})
+    
+    conn.close()
+    
+    return jsonify({'message': 'Order accepted', 'order_id': order_id}), 200
 
 # ============================================================
 # REVIEW ENDPOINTS
@@ -783,6 +734,62 @@ def health_check():
 # ============================================================
 # ERROR HANDLERS
 # ============================================================
+
+# ============================================================
+# ADMIN DATABASE ENDPOINTS
+# ============================================================
+
+@app.route('/api/admin/database', methods=['GET'])
+@jwt_required()
+def get_database_info():
+    """Get complete database info - ADMIN ONLY"""
+    user_id = get_jwt_identity()
+    claims = get_jwt()
+    
+    # Check if admin
+    if claims.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Get all tables data
+        result = {
+            'users': [],
+            'orders': [],
+            'couriers': [],
+            'reviews': [],
+            'activity_logs': []
+        }
+        
+        # Users
+        cursor.execute('SELECT id, username, email, role, is_active, created_at FROM users')
+        result['users'] = [dict(row) for row in cursor.fetchall()]
+        
+        # Orders
+        cursor.execute('''SELECT o.id, o.client_id, o.courier_id, o.delivery_address, 
+                          o.product_description, o.distance_km, o.suggested_price, 
+                          o.status, o.created_at FROM orders o''')
+        result['orders'] = [dict(row) for row in cursor.fetchall()]
+        
+        # Couriers
+        cursor.execute('SELECT id, user_id, status, rating, completed_orders FROM couriers')
+        result['couriers'] = [dict(row) for row in cursor.fetchall()]
+        
+        # Reviews
+        cursor.execute('SELECT id, order_id, client_id, courier_id, rating, comment, created_at FROM reviews')
+        result['reviews'] = [dict(row) for row in cursor.fetchall()]
+        
+        # Activity logs
+        cursor.execute('SELECT id, user_id, action, resource, details, timestamp FROM activity_logs ORDER BY timestamp DESC LIMIT 100')
+        result['activity_logs'] = [dict(row) for row in cursor.fetchall()]
+        
+        conn.close()
+        return jsonify(result), 200
+    except Exception as e:
+        conn.close()
+        return jsonify({'error': str(e)}), 500
 
 @app.errorhandler(404)
 def not_found(error):

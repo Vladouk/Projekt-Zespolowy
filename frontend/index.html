@@ -68,15 +68,13 @@
         <!-- ADMIN SETTINGS -->
         <div data-view="settings" id="adminSettingsPanel" style="display: none;">
             <section class="admin-section">
-                <h1>⚙️ Ustawienia Administratora</h1>
-                <div class="settings-container">
-                    <h2>Konfiguracja Systemu</h2>
-                    <p>✅ Status Bazy Danych: Połączono</p>
-                    <p>✅ Status API: Uruchomione</p>
-                    <p>✅ Wersja Backend: 2.0</p>
-                    <div style="margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="alert('Funkcja kopii zapasowej dostępna w ETAP 3')">💾 Kopia Zapasowa Bazy</button>
-                        <button class="btn btn-primary" onclick="alert('Funkcja logów dostępna w ETAP 3')">📋 Wyświetl Logi</button>
+                <h1>⚙️ Baza Danych</h1>
+                <div style="margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="loadDatabaseInfo()" style="background-color: #667eea;">📊 Załaduj Dane Bazy</button>
+                </div>
+                <div id="databaseInfo" style="display: none;">
+                    <div style="overflow-x: auto;">
+                        <div id="dbContent"></div>
                     </div>
                 </div>
             </section>

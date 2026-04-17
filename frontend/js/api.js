@@ -236,7 +236,7 @@ class DeliveryAPI {
 
     async getAvailableOrders() {
         try {
-            const response = await fetch(`${this.apiBase}/courier/available`, {
+            const response = await fetch(`${this.apiBase}/courier/available-orders`, {
                 headers: this._getAuthHeaders()
             });
             const data = await response.json();
@@ -268,7 +268,7 @@ class DeliveryAPI {
 
     async acceptOrder(orderId) {
         try {
-            const response = await fetch(`${this.apiBase}/courier/accept/${orderId}`, {
+            const response = await fetch(`${this.apiBase}/courier/accept-order/${orderId}`, {
                 method: 'POST',
                 headers: this._getAuthHeaders()
             });
@@ -338,6 +338,7 @@ class DeliveryAPI {
         return !!this.token;
     }
 
+
     getCurrentUserFromStorage() {
         const user = localStorage.getItem('current_user');
         return user ? JSON.parse(user) : null;
@@ -347,7 +348,24 @@ class DeliveryAPI {
         this.token = token;
         localStorage.setItem('auth_token', token);
     }
+
+    async getDatabaseInfo() {
+        try {
+            const response = await fetch(`${this.apiBase}/admin/database`, {
+                headers: this._getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                return { success: true, data };
+            }
+            return { success: false, error: data.error };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
 }
 
 // Export for use
 const api = new DeliveryAPI();
+

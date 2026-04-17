@@ -7,6 +7,18 @@ let currentUser = null;
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Initializing Delivery Manager App...');
     
+    // Clear old cache
+    if ('caches' in window) {
+        caches.keys().then((cacheNames) => {
+            cacheNames.forEach((cacheName) => {
+                if (cacheName !== 'delivery-manager-v2') {
+                    console.log('🗑️ Deleting old cache:', cacheName);
+                    caches.delete(cacheName);
+                }
+            });
+        });
+    }
+    
     // Check if logged in
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('current_user');
@@ -278,21 +290,22 @@ function displayAvailableOrders(orders) {
     if (!container) return;
     
     if (orders.length === 0) {
-        container.innerHTML = '<p class="no-data">No available orders nearby</p>';
+        container.innerHTML = '<p class="no-data">Brak dostępnych zamówień</p>';
         return;
     }
     
     const html = orders.map(order => `
         <div class="order-card">
             <div class="order-header">
-                <strong>${order.product}</strong>
+                <strong>Zamówienie #${order.id}</strong>
                 <span class="order-distance">${order.distance_km}km</span>
             </div>
-            <p class="order-address">📍 ${order.address}</p>
-            <p class="order-category">${order.category}</p>
+            <p class="order-address">📍 ${order.delivery_address}</p>
+            <p><strong>Kategoria:</strong> ${order.product_category}</p>
+            <p><strong>Opis:</strong> ${order.product_description}</p>
             <div class="order-footer">
-                <span class="order-price">💰 $${order.suggested_price.toFixed(2)}</span>
-                <button onclick="acceptOrder(${order.id})" class="btn btn-primary">Accept</button>
+                <span class="order-price">💰 ${order.suggested_price.toFixed(2)} zł</span>
+                <button onclick="acceptOrder(${order.id})" class="btn btn-primary">Zaakceptuj</button>
             </div>
         </div>
     `).join('');
@@ -304,12 +317,12 @@ function displayAvailableOrders(orders) {
 async function acceptOrder(orderId) {
     const result = await api.acceptOrder(orderId);
     if (result.success) {
-        console.log(`✅ Order accepted: ${orderId}`);
-        alert('Order accepted! You can now start delivery.');
+        console.log(`✅ Zamówienie zaakceptowane: ${orderId}`);
+        alert('✅ Zamówienie zaakceptowane! Możesz teraz rozpocząć dostawę.');
         // Refresh list
         showCourierDashboard();
     } else {
-        alert('Failed to accept order: ' + result.error);
+        alert('❌ Błąd przy akceptowaniu zamówienia: ' + result.error);
     }
 }
 
@@ -583,11 +596,11 @@ function showAdminSettings() {
 // COURIER ORDERS & SETTINGS
 // ====================================
 async function showCourierOrders() {
-    console.log('📦 Loading Courier Orders...');
+    console.log('📦 Ładowanie zamówień kuriera...');
     
     if (!api) {
-        console.error('❌ API not initialized');
-        alert('Error: API client not initialized');
+        console.error('❌ API nie zainicjalizowany');
+        alert('Błąd: Klient API nie zainicjalizowany');
         return;
     }
     
@@ -596,15 +609,15 @@ async function showCourierOrders() {
     if (result.success) {
         displayCourierOrdersList(result.data);
     } else {
-        console.error('❌ Failed to load courier orders:', result.error);
-        alert('Failed to load orders: ' + result.error);
+        console.error('❌ Nie udało się załadować zamówień kuriera:', result.error);
+        alert('Nie udało się załadować zamówienia: ' + result.error);
     }
     
     const courierOrdersPanel = document.getElementById('courierOrdersPanel');
     if (courierOrdersPanel) {
         courierOrdersPanel.style.display = 'block';
     } else {
-        console.warn('⚠️ Courier Orders panel not found');
+        console.warn('⚠️ Panel zamówień kuriera nie znaleziony');
     }
 }
 
@@ -613,27 +626,27 @@ function displayCourierOrdersList(orders) {
     if (!ordersList) return;
     
     if (orders.length === 0) {
-        ordersList.innerHTML = '<p>No orders assigned</p>';
+        ordersList.innerHTML = '<p>Brak przypisanych zamówień</p>';
         return;
     }
     
     const html = orders.map(order => `
         <div class="order-card">
             <div class="order-header">
-                <strong>Order #${order.id}</strong>
+                <strong>Zamówienie #${order.id}</strong>
                 <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
             </div>
             <div class="order-details">
-                <p><strong>Client:</strong> ${order.client_name}</p>
-                <p><strong>Delivery To:</strong> ${order.delivery_address}</p>
-                <p><strong>Distance:</strong> ${order.distance} km</p>
-                <p><strong>Price:</strong> $${order.price.toFixed(2)}</p>
+                <p><strong>Klient:</strong> ${order.client_name}</p>
+                <p><strong>Dostawa do:</strong> ${order.delivery_address}</p>
+                <p><strong>Dystans:</strong> ${order.distance_km} km</p>
+                <p><strong>Cena:</strong> ${order.suggested_price.toFixed(2)} zł</p>
             </div>
         </div>
     `).join('');
     
     ordersList.innerHTML = html;
-    console.log('✅ Courier orders displayed');
+    console.log('✅ Zamówienia kuriera wyświetlone');
 }
 
 function showCourierSettings() {
@@ -721,4 +734,85 @@ async function loadDashboardData() {
     // Data will be loaded based on role
 }
 
+async function loadDatabaseInfo() {
+    console.log('📊 Loading database info...');
+    
+    if (!api) {
+        alert('❌ API not initialized');
+        return;
+    }
+    
+    const result = await api.getDatabaseInfo();
+    
+    if (!result.success) {
+        alert('❌ Error loading database: ' + result.error);
+        return;
+    }
+    
+    const data = result.data;
+    const infoDiv = document.getElementById('databaseInfo');
+    const contentDiv = document.getElementById('dbContent');
+    
+    let html = '<div style="padding: 20px;">';
+    
+    // Users table
+    html += '<h2 style="margin-top: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">👥 Użytkownicy</h2>';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background-color: #f0f0f0;"><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nazwa</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Email</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Rola</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th></tr>';
+    if (data.users && data.users.length > 0) {
+        data.users.forEach(user => {
+            html += `<tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">${user.id}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>${user.username}</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${user.email}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><span style="background-color: ${user.role === 'admin' ? '#ff6b6b' : user.role === 'courier' ? '#4ecdc4' : '#95e1d3'}; color: white; padding: 4px 8px; border-radius: 3px;">${user.role.toUpperCase()}</span></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${user.is_active ? '✅ Aktywny' : '❌ Nieaktywny'}</td>
+            </tr>`;
+        });
+    }
+    html += '</table>';
+    
+    // Orders table
+    html += '<h2 style="margin-top: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">📦 Zamówienia</h2>';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background-color: #f0f0f0;"><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Klient</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Kurier</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Adres</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Cena</th></tr>';
+    if (data.orders && data.orders.length > 0) {
+        data.orders.forEach(order => {
+            html += `<tr>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>#${order.id}</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${order.client_id}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${order.courier_id || '—'}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${order.delivery_address}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><span style="background-color: #ffd700; padding: 4px 8px; border-radius: 3px;">${order.status}</span></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${order.suggested_price.toFixed(2)} zł</td>
+            </tr>`;
+        });
+    }
+    html += '</table>';
+    
+    // Couriers table
+    html += '<h2 style="margin-top: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px;">🚴 Kurierzy</h2>';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+    html += '<tr style="background-color: #f0f0f0;"><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">User ID</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Rating</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Dostarczono</th></tr>';
+    if (data.couriers && data.couriers.length > 0) {
+        data.couriers.forEach(courier => {
+            html += `<tr>
+                <td style="border: 1px solid #ddd; padding: 8px;"><strong>${courier.id}</strong></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${courier.user_id}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;"><span style="background-color: ${courier.status === 'online' ? '#51cf66' : '#ffc107'}; color: white; padding: 4px 8px; border-radius: 3px;">${courier.status}</span></td>
+                <td style="border: 1px solid #ddd; padding: 8px;">⭐ ${courier.rating || 0}</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${courier.completed_orders || 0}</td>
+            </tr>`;
+        });
+    }
+    html += '</table>';
+    
+    html += '</div>';
+    contentDiv.innerHTML = html;
+    infoDiv.style.display = 'block';
+    
+    console.log('✅ Database info loaded');
+}
+
 console.log('✅ App script loaded');
+
