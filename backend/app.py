@@ -261,9 +261,9 @@ def register():
         # Если курьер - создать профиль курьера
         if role == 'courier':
             cursor.execute('''
-                INSERT INTO couriers (user_id, status)
-                VALUES (?, ?)
-            ''', (user_id, 'offline'))
+                INSERT INTO couriers (user_id, phone, status)
+                VALUES (?, ?, ?)
+            ''', (user_id, data.get('phone', ''), 'offline'))
             conn.commit()
         
         log_activity(user_id, 'register', 'user', {'username': data['username']})

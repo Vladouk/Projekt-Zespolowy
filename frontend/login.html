@@ -262,10 +262,19 @@
 
                 <div class="form-group">
                     <label for="reg-role">Rola</label>
-                    <select id="reg-role">
+                    <select id="reg-role" onchange="togglePhoneField()">
                         <option value="user">Klient</option>
                         <option value="courier">Kurier</option>
                     </select>
+                </div>
+
+                <div class="form-group" id="phoneField" style="display: none;">
+                    <label for="reg-phone">Numer Telefonu (dla kurierów)</label>
+                    <input 
+                        type="tel" 
+                        id="reg-phone" 
+                        placeholder="Np. +48 123 456 789"
+                    >
                 </div>
 
                 <button type="submit" class="login-btn" id="submitRegBtn">
@@ -283,6 +292,22 @@
 
     <script>
         const API_URL = 'http://localhost:5000/api';
+        
+        // Toggle phone field based on role selection
+        function togglePhoneField() {
+            const role = document.getElementById('reg-role').value;
+            const phoneField = document.getElementById('phoneField');
+            const phoneInput = document.getElementById('reg-phone');
+            
+            if (role === 'courier') {
+                phoneField.style.display = 'block';
+                phoneInput.required = true;
+            } else {
+                phoneField.style.display = 'none';
+                phoneInput.required = false;
+                phoneInput.value = '';
+            }
+        }
         
         // Налаштування локального зберігання токена
         const getToken = () => localStorage.getItem('auth_token');
@@ -364,6 +389,7 @@
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const role = document.getElementById('reg-role').value;
+            const phone = document.getElementById('reg-phone').value;
             const submitBtn = document.getElementById('submitRegBtn');
             const message = document.getElementById('reg-message');
 
@@ -378,7 +404,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, email, password, role })
+                    body: JSON.stringify({ username, email, password, role, phone })
                 });
 
                 const data = await response.json();
