@@ -1,18 +1,4 @@
-/**
- * 🚀 DELIVERY MANAGER - MAIN APPLICATION V2
- * Управління додатком для всіх ролей
- */
-
 let currentUser = null;
-
-// Check if API exists before creating instance
-let api = null;
-if (typeof DeliveryAPI !== 'undefined') {
-    api = new DeliveryAPI();
-    console.log('✅ DeliveryAPI initialized');
-} else {
-    console.warn('⚠️ DeliveryAPI not found, will use fetch directly');
-}
 
 // ====================================
 // INITIALIZATION
@@ -99,39 +85,48 @@ function setupNavigation() {
 
 function switchView(view) {
     console.log(`🔄 Switching to view: ${view}`);
+    console.log(`👤 Current user role: ${currentUser ? currentUser.role : 'unknown'}`);
+    console.log(`🔌 API initialized: ${api ? 'YES' : 'NO'}`);
     
-    // Hide all panels
-    const panels = ['adminPanel', 'courierPanel', 'clientPanel'];
-    panels.forEach(panelId => {
-        const panel = document.getElementById(panelId);
-        if (panel) {
-            panel.style.display = 'none';
-        }
+    // Hide all panels and views
+    const allPanels = document.querySelectorAll('[data-view]');
+    allPanels.forEach(panel => {
+        panel.style.display = 'none';
     });
+    console.log(`✅ Hidden ${allPanels.length} panels`);
     
     // Show the appropriate view based on user role and selected view
     if (currentUser.role === 'admin') {
-        if (view === 'dashboard' || view === 'dashboard') {
+        if (view === 'dashboard') {
+            console.log('📋 Showing admin dashboard');
             showAdminDashboard();
         } else if (view === 'orders') {
-            showAdminDashboard(); // Orders for admin is same as dashboard
+            console.log('📦 Showing admin orders');
+            showAdminOrders();
         } else if (view === 'settings') {
+            console.log('⚙️ Showing admin settings');
             showAdminSettings();
         }
     } else if (currentUser.role === 'courier') {
         if (view === 'dashboard') {
+            console.log('📋 Showing courier dashboard');
             showCourierDashboard();
         } else if (view === 'orders') {
+            console.log('📦 Showing courier orders');
             showCourierOrders();
         } else if (view === 'settings') {
+            console.log('⚙️ Showing courier settings');
             showCourierSettings();
         }
     } else if (currentUser.role === 'client') {
         if (view === 'dashboard') {
+            console.log('📋 Showing client dashboard');
             showClientDashboard();
         } else if (view === 'orders') {
+            console.log('📦 Showing client orders');
             showClientOrders();
         } else if (view === 'settings') {
+            console.log('⚙️ Showing client settings');
             showClientSettings();
         }
     }
@@ -146,22 +141,35 @@ function switchView(view) {
 async function showAdminDashboard() {
     console.log('👨‍💼 Loading Admin Dashboard...');
     
+    if (!api) {
+        console.error('❌ API not initialized');
+        alert('Error: API client not initialized');
+        return;
+    }
+    
     // Load stats
     const statsResult = await api.getAdminStats();
     if (statsResult.success) {
         displayAdminStats(statsResult.data);
+    } else {
+        console.error('❌ Failed to load stats:', statsResult.error);
     }
     
     // Load users
     const usersResult = await api.getAllUsers();
     if (usersResult.success) {
         displayUsersList(usersResult.data);
+    } else {
+        console.error('❌ Failed to load users:', usersResult.error);
     }
     
     // Show admin panel
     const adminPanel = document.getElementById('adminPanel');
     if (adminPanel) {
         adminPanel.style.display = 'block';
+        console.log('✅ Admin panel displayed');
+    } else {
+        console.warn('⚠️ Admin panel element not found');
     }
 }
 
@@ -246,10 +254,17 @@ async function changeRole(userId, newRole) {
 async function showCourierDashboard() {
     console.log('🚴 Loading Courier Dashboard...');
     
+    if (!api) {
+        console.error('❌ API not initialized');
+        return;
+    }
+    
     // Load available orders
     const result = await api.getAvailableOrders();
     if (result.success) {
         displayAvailableOrders(result.data);
+    } else {
+        console.error('❌ Failed to load available orders:', result.error);
     }
     
     const courierPanel = document.getElementById('courierPanel');
@@ -304,6 +319,11 @@ async function acceptOrder(orderId) {
 
 async function showClientDashboard() {
     console.log('👤 Loading Client Dashboard...');
+    
+    if (!api) {
+        console.error('❌ API not initialized');
+        return;
+    }
     
     // Load user's orders
     const result = await api.getMyOrders();
@@ -491,41 +511,209 @@ function logout() {
 // ====================================
 // ADMIN ORDERS VIEW
 // ====================================
+async function showAdminOrders() {
+    console.log('📦 Loading Admin Orders...');
+    
+    if (!api) {
+        console.error('❌ API not initialized');
+        alert('Error: API client not initialized');
+        return;
+    }
+    
+    // Load all orders
+    const result = await api.getAllOrders();
+    if (result.success) {
+        displayAdminOrdersList(result.data);
+    } else {
+        console.error('❌ Failed to load orders:', result.error);
+        alert('Failed to load orders: ' + result.error);
+    }
+    
+    // Show admin orders panel
+    const adminOrdersPanel = document.getElementById('adminOrdersPanel');
+    if (adminOrdersPanel) {
+        adminOrdersPanel.style.display = 'block';
+        console.log('✅ Admin orders panel displayed');
+    } else {
+        console.warn('⚠️ Admin Orders panel not found');
+    }
+}
+
+function displayAdminOrdersList(orders) {
+    const ordersList = document.getElementById('adminOrdersList');
+    if (!ordersList) return;
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = '<p>No orders found</p>';
+        return;
+    }
+    
+    const html = orders.map(order => `
+        <div class="order-card">
+            <div class="order-header">
+                <strong>Order #${order.id}</strong>
+                <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+            </div>
+            <div class="order-details">
+                <p><strong>Client:</strong> ${order.client_name}</p>
+                <p><strong>Delivery To:</strong> ${order.delivery_address}</p>
+                <p><strong>Distance:</strong> ${order.distance} km</p>
+                <p><strong>Price:</strong> $${order.price.toFixed(2)}</p>
+                <p><strong>Description:</strong> ${order.product_description}</p>
+            </div>
+        </div>
+    `).join('');
+    
+    ordersList.innerHTML = html;
+    console.log('✅ Admin orders displayed');
+}
+
 function showAdminSettings() {
     console.log('⚙️ Loading Admin Settings...');
-    alert('⚙️ Admin Settings\n\nFeatures:\n- System Configuration\n- Backup Database\n- View Logs\n\nComing in ETAP 3');
+    
+    const adminSettingsPanel = document.getElementById('adminSettingsPanel');
+    if (adminSettingsPanel) {
+        adminSettingsPanel.style.display = 'block';
+    } else {
+        alert('⚙️ Admin Settings\n\nFeatures:\n- System Configuration\n- Backup Database\n- View Logs\n\nComing in ETAP 3');
+    }
 }
 
 // ====================================
 // COURIER ORDERS & SETTINGS
 // ====================================
-function showCourierOrders() {
+async function showCourierOrders() {
     console.log('📦 Loading Courier Orders...');
-    const courierPanel = document.getElementById('courierPanel');
-    if (courierPanel) {
-        courierPanel.style.display = 'block';
+    
+    if (!api) {
+        console.error('❌ API not initialized');
+        alert('Error: API client not initialized');
+        return;
     }
+    
+    // Load my orders
+    const result = await api.getCourierOrders();
+    if (result.success) {
+        displayCourierOrdersList(result.data);
+    } else {
+        console.error('❌ Failed to load courier orders:', result.error);
+        alert('Failed to load orders: ' + result.error);
+    }
+    
+    const courierOrdersPanel = document.getElementById('courierOrdersPanel');
+    if (courierOrdersPanel) {
+        courierOrdersPanel.style.display = 'block';
+    } else {
+        console.warn('⚠️ Courier Orders panel not found');
+    }
+}
+
+function displayCourierOrdersList(orders) {
+    const ordersList = document.getElementById('courierOrdersList');
+    if (!ordersList) return;
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = '<p>No orders assigned</p>';
+        return;
+    }
+    
+    const html = orders.map(order => `
+        <div class="order-card">
+            <div class="order-header">
+                <strong>Order #${order.id}</strong>
+                <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+            </div>
+            <div class="order-details">
+                <p><strong>Client:</strong> ${order.client_name}</p>
+                <p><strong>Delivery To:</strong> ${order.delivery_address}</p>
+                <p><strong>Distance:</strong> ${order.distance} km</p>
+                <p><strong>Price:</strong> $${order.price.toFixed(2)}</p>
+            </div>
+        </div>
+    `).join('');
+    
+    ordersList.innerHTML = html;
+    console.log('✅ Courier orders displayed');
 }
 
 function showCourierSettings() {
     console.log('⚙️ Loading Courier Settings...');
-    alert('⚙️ Courier Settings\n\nFeatures:\n- Profile Settings\n- Vehicle Information\n- Availability\n\nComing in ETAP 3');
+    
+    const courierSettingsPanel = document.getElementById('courierSettingsPanel');
+    if (courierSettingsPanel) {
+        courierSettingsPanel.style.display = 'block';
+    } else {
+        alert('⚙️ Courier Settings\n\nFeatures:\n- Profile Settings\n- Vehicle Information\n- Availability\n\nComing in ETAP 3');
+    }
 }
 
 // ====================================
 // CLIENT ORDERS & SETTINGS
 // ====================================
-function showClientOrders() {
+async function showClientOrders() {
     console.log('📦 Loading Client Orders...');
-    const clientPanel = document.getElementById('clientPanel');
-    if (clientPanel) {
-        clientPanel.style.display = 'block';
+    
+    if (!api) {
+        console.error('❌ API not initialized');
+        alert('Error: API client not initialized');
+        return;
     }
+    
+    // Load my orders
+    const result = await api.getMyOrders();
+    if (result.success) {
+        displayClientOrdersList(result.data);
+    } else {
+        console.error('❌ Failed to load client orders:', result.error);
+        alert('Failed to load orders: ' + result.error);
+    }
+    
+    const clientOrdersPanel = document.getElementById('clientOrdersPanel');
+    if (clientOrdersPanel) {
+        clientOrdersPanel.style.display = 'block';
+    } else {
+        console.warn('⚠️ Client Orders panel not found');
+    }
+}
+
+function displayClientOrdersList(orders) {
+    const ordersList = document.getElementById('clientOrdersList');
+    if (!ordersList) return;
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = '<p>No orders created yet. Start by creating a new order!</p>';
+        return;
+    }
+    
+    const html = orders.map(order => `
+        <div class="order-card">
+            <div class="order-header">
+                <strong>Order #${order.id}</strong>
+                <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+            </div>
+            <div class="order-details">
+                <p><strong>Delivery To:</strong> ${order.delivery_address}</p>
+                <p><strong>Distance:</strong> ${order.distance} km</p>
+                <p><strong>Price:</strong> $${order.price.toFixed(2)}</p>
+                <p><strong>Item:</strong> ${order.product_description}</p>
+                ${order.courier_name ? `<p><strong>Courier:</strong> ${order.courier_name}</p>` : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    ordersList.innerHTML = html;
+    console.log('✅ Client orders displayed');
 }
 
 function showClientSettings() {
     console.log('⚙️ Loading Client Settings...');
-    alert('⚙️ Client Settings\n\nFeatures:\n- Profile Information\n- Payment Methods\n- Saved Addresses\n\nComing in ETAP 3');
+    
+    const clientSettingsPanel = document.getElementById('clientSettingsPanel');
+    if (clientSettingsPanel) {
+        clientSettingsPanel.style.display = 'block';
+    } else {
+        alert('⚙️ Client Settings\n\nFeatures:\n- Profile Information\n- Payment Methods\n- Saved Addresses\n\nComing in ETAP 3');
+    }
 }
 
 async function loadDashboardData() {

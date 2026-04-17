@@ -237,9 +237,17 @@
         const setToken = (token) => localStorage.setItem('auth_token', token);
         const removeToken = () => localStorage.removeItem('auth_token');
         
-        // Перевірити чи вже залогінений
-        if (getToken()) {
-            window.location.href = 'index.html';
+        // Перевірити чи вже залогінений - тільки якщо є токен І користувач
+        const token = getToken();
+        const user = localStorage.getItem('current_user');
+        if (token && user) {
+            try {
+                JSON.parse(user); // Спроба парсити юзера
+                window.location.href = 'index.html';
+            } catch (e) {
+                // Якщо не можна парсити - залишитися на логіні
+                removeToken();
+            }
         }
 
         // Форма логіну
@@ -273,6 +281,11 @@
 
                 // Зберегти токен
                 setToken(data.access_token);
+                
+                // Зберегти інформацію про користувача
+                if (data.user) {
+                    localStorage.setItem('current_user', JSON.stringify(data.user));
+                }
 
                 message.className = 'message success';
                 message.textContent = '✅ Успішно! Переспрямування...';

@@ -417,6 +417,29 @@ def get_admin_stats():
         'avg_rating': round(avg_rating, 2)
     }), 200
 
+@app.route('/api/admin/orders', methods=['GET'])
+@jwt_required()
+def get_all_orders():
+    """Get all orders (admin only)"""
+    claims = get_jwt()
+    if claims.get('role') != 'admin':
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT o.*, u.username as client_name, c.username as courier_name
+        FROM orders o
+        LEFT JOIN users u ON o.client_id = u.id
+        LEFT JOIN users c ON o.courier_id = c.id
+        ORDER BY o.created_at DESC
+    ''')
+    orders = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    
+    return jsonify(orders), 200
+
 # ============================================================
 # ORDER ENDPOINTS (CLIENT)
 # ============================================================
@@ -662,6 +685,34 @@ def update_order_status(order_id):
     log_activity(user_id, 'update_order_status', 'order', {'order_id': order_id, 'status': new_status})
     
     return jsonify({'message': 'Status updated', 'order_id': order_id, 'status': new_status}), 200
+
+@app.route('/api/courier/my-orders', methods=['GET'])
+@jwt_required()
+def get_courier_orders():
+    """Get orders assigned to current courier"""
+    user_id = get_jwt_identity()
+    
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT id FROM couriers WHERE user_id = ?', (user_id,))
+    courier = cursor.fetchone()
+    
+    if not courier:
+        conn.close()
+        return jsonify({'error': 'Courier profile not found'}), 404
+    
+    cursor.execute('''
+        SELECT o.*, u.username as client_name
+        FROM orders o
+        LEFT JOIN users u ON o.client_id = u.id
+        WHERE o.courier_id = ?
+        ORDER BY o.created_at DESC
+    ''', (courier['id'],))
+    orders = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    
+    return jsonify(orders), 200
 
 # ============================================================
 # REVIEW ENDPOINTS

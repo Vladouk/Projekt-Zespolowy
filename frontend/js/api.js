@@ -1,8 +1,3 @@
-/**
- * 🚀 DELIVERY MANAGER - API CLIENT V2
- * Повнофункціональний клієнт для роботи з backend API
- */
-
 class DeliveryAPI {
     constructor() {
         this.apiBase = 'http://localhost:5000/api';
@@ -142,6 +137,22 @@ class DeliveryAPI {
         }
     }
 
+    async getAllOrders() {
+        try {
+            const response = await fetch(`${this.apiBase}/admin/orders`, {
+                headers: this._getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                return { success: true, data };
+            }
+            return { success: false, error: data.error };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+
     // ====================================
     // ORDER METHODS (CLIENT)
     // ====================================
@@ -226,6 +237,22 @@ class DeliveryAPI {
     async getAvailableOrders() {
         try {
             const response = await fetch(`${this.apiBase}/courier/available`, {
+                headers: this._getAuthHeaders()
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                return { success: true, data };
+            }
+            return { success: false, error: data.error };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getCourierOrders() {
+        try {
+            const response = await fetch(`${this.apiBase}/courier/my-orders`, {
                 headers: this._getAuthHeaders()
             });
             const data = await response.json();
